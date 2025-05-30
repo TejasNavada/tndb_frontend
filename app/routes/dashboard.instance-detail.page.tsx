@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Outlet, Link } from 'react-router-dom';
+import { useParams, Outlet, Link, useNavigate } from 'react-router-dom';
 import { useDatabaseInstances } from '~/context/DatabaseInstanceContext';
 import { subscribeInstanceMetrics } from '~/lib/instanceService';
 import type { DatabaseInstanceResponse } from '~/types/dto';
@@ -26,6 +26,7 @@ const InstanceDetailPage = () => {
   const {instances, metrics, setMetrics} = useDatabaseInstances();
   const { dbId } = useParams<{ dbId: string }>();
   const[ instance, setInstance] = useState<DatabaseInstanceResponse>()
+  const navigate = useNavigate();
 
   useEffect(()=>{
     if(dbId){
@@ -44,7 +45,7 @@ const InstanceDetailPage = () => {
     <div>
       <Outlet />
       <h2 className="flex text-blue-500 hover:text-blue-700 my-2">
-        Summary
+        <div onClick={()=>navigate("/dashboard/instances")}>Summary</div>
         <h2 className="mx-2 text-gray-500 hover:underline-none"> {">"} {instance?.userGivenName}</h2>
       </h2>
       <div className="flex">
