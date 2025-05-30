@@ -85,7 +85,7 @@ const Provision = () => {
                     <DialogContent className="flex flex-col fixed  transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-xl p-6 w-[90vw] max-w-[425px]">
                 
                         {resp?.dbEngine === "postgresql" && (
-                            <div className='mx-50 my-70 justify-center flex'>
+                            <div className='mx-10 my-70 justify-center flex wrap-anywhere'>
                                 DB Hosted at {"postgresql://" +
                                 encodeURIComponent(resp.dbUser) + ":" +
                                 encodeURIComponent(resp.dbPassword) + "@" +
@@ -96,7 +96,7 @@ const Provision = () => {
                             )}
 
                             {resp?.dbEngine === "mongodb" && (
-                            <div className='mx-50 my-70 justify-center flex'>
+                            <div className='mx-10 my-70 justify-center flex wrap-anywhere'>
                                 DB Hosted at {"mongodb://" +
                                 encodeURIComponent(resp.dbUser) + ":" +
                                 encodeURIComponent(resp.dbPassword) + "@" +
