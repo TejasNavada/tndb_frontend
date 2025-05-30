@@ -55,7 +55,7 @@ export interface DatabaseInstanceWithBackupsResponse {
     containerStatsError?: string;
     
     dbActiveConnections: number;
-    dbSizeBytes: number;
+    dbSizeMegaBytes: number;
     dbMetricsError?: string;
   }
 

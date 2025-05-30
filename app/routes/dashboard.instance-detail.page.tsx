@@ -433,7 +433,7 @@ const InstanceDetailPage = () => {
                           (() => {
                             const last = metrics[metrics.length - 1];
                             const value = last?.dbCacheHitRate;
-                            return value != null ? `${value}%` : 'N/A';
+                            return value != null ? `${value.toFixed(2)}%` : 'N/A';
                           })()
                         }
 
@@ -464,24 +464,24 @@ const InstanceDetailPage = () => {
                 <div className='flex-1'>
                   <div className='flex justify-between ml-17'>
                     <div className='font-bold truncate'>
-                      DB Size (B)
+                      DB Size (MB)
                     </div>
                     <div className='text-gray-500 mr-10 flex '>
                       <div className='mx-4 truncate'>
                         Peak: {(() => {
                         const values = metrics
-                          .map((val) => val?.dbSizeBytes)
+                          .map((val) => val?.dbSizeMegaBytes)
                           .filter((val) => val != null);
 
-                        return values.length > 0 ? Math.max(...values) : "N/A"; 
+                        return values.length > 0 ? `${Math.max(...values).toFixed(2)}MB` : "N/A"; 
                       })()}
                       </div>
                       <div className='truncate'>
                         Current: {
                           (() => {
                             const last = metrics[metrics.length - 1];
-                            const value = last?.dbSizeBytes;
-                            return value != null ? `${value}` : 'N/A';
+                            const value = last?.dbSizeMegaBytes;
+                            return value != null ? `${value.toFixed(2)}MB` : 'N/A';
                           })()
                         }
 
@@ -499,7 +499,7 @@ const InstanceDetailPage = () => {
                     ]}
                     series={[
                       {
-                        data: metrics.map((val)=>val?.dbSizeBytes).filter((val)=>val!=null),
+                        data: metrics.map((val)=>val?.dbSizeMegaBytes).filter((val)=>val!=null),
                         area: true,
                         color: 'rgba(53, 162, 235, 0.3)',
                         showMark: false,
