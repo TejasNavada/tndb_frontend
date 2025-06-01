@@ -1,6 +1,6 @@
 
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
   Select,
@@ -27,18 +27,22 @@ const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { promises } = useDatabaseInstances();
+  const [currentSection ,setCurrentSection] = useState<string>()
 
-  // Determine the current section based on the pathname
-  let currentSection = "instances"; // Default to 'instances'
-  if (location.pathname.startsWith("/dashboard/metrics")) {
-    currentSection = "metrics";
-  } else if (
-    location.pathname.startsWith("/dashboard/instances") ||
-    location.pathname === "/dashboard" ||
-    location.pathname === "/dashboard/" // Handles trailing slash for /dashboard
-  ) {
-    currentSection = "instances";
-  }
+
+  useEffect(()=>{
+    if (location.pathname.startsWith("/dashboard/metrics")) {
+      setCurrentSection("metrics")
+    }
+    else if (location.pathname.startsWith("/dashboard/roles")){
+      setCurrentSection("roles")
+    } 
+    else if (location.pathname.startsWith("/dashboard/instances") || location.pathname === "/dashboard" || location.pathname === "/dashboard/"){
+      setCurrentSection("instances")
+    }
+
+  }, [location])
+  
 
   const handleValueChange = (value: string) => {
     navigate(`/dashboard/${value}`);
@@ -92,7 +96,7 @@ const Header = () => {
                   Instances
                 </SelectItem>
                 <SelectItem
-                  value="Roles"
+                  value="roles"
                   className="hover:bg-slate-700 focus:bg-slate-600 cursor-pointer"
                 >
                   Roles

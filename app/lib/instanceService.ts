@@ -88,6 +88,21 @@ export const clone = async (sourceId:number, dbName :string, dbUser :string, dbP
   } 
 };
 
+export const setAutoBackup = async (dbId:number, frequency :string, enabled :boolean): Promise<boolean> => {
+  try {
+    initializeAxiosHeader();
+    const res = await axios.put(`${url}/${dbId}/autobackup`,{
+        enabled: enabled,
+        frequency: frequency
+    })
+    console.log(res.data)
+    return true;
+  } catch (e) {
+    console.error("Error fetching databases:", e);
+    return false
+  } 
+};
+
 export const backupDB = async (dbId: number): Promise<BackupRecord> => {
   try {
     initializeAxiosHeader();
@@ -161,6 +176,8 @@ export const subscribeUserInstances = (updateDbInstances: (arg0: (prevdbInstance
                     return newdbInstances
                 } else if (res.operation === "UPDATE") {
                     let newdbInstances = [...prevdbInstances]
+                    dbInstance.autoBackupSchedules = newdbInstances[dbIndex]?.autoBackupSchedules
+                    dbInstance.permissionLevel = newdbInstances[dbIndex]?.permissionLevel
                     newdbInstances[dbIndex] = dbInstance
                     return newdbInstances
                 } else if (res.operation === "DELETE") {

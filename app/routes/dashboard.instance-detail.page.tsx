@@ -29,7 +29,7 @@ const InstanceDetailPage = () => {
   const navigate = useNavigate();
 
   useEffect(()=>{
-    if(dbId){
+    if(dbId && instances){
       setMetrics([])
       setInstance(instances.find((db)=>db.dbId==parseInt(dbId)))
       let unsubscribe = subscribeInstanceMetrics(parseInt(dbId),setMetrics)

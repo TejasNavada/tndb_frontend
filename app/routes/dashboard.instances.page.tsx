@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom'; // useNavigate was imported but not used
-import { backupDB, deleteDB, getAllInstances } from '~/lib/instanceService';
+import { backupDB, deleteDB, getAllInstances, setAutoBackup } from '~/lib/instanceService';
 import { MakeQuerablePromise, type DatabaseInstanceResponse } from '~/types/dto';
 import {
   MRT_GlobalFilterTextField,
@@ -109,6 +109,10 @@ const InstancesPage = () => {
             accessorKey: 'internalDbName',
             header: 'DB Name',
         },
+        {
+            accessorKey: 'permissionLevel',
+            header: 'Role',
+        },
     ],
     [],
     );
@@ -152,7 +156,7 @@ const InstancesPage = () => {
             </div>
             <div className='mx-5'>
                 <Stack  sx={{ marginTop: '2rem' }}>
-                    <Box className= "shadow-lg "
+                    <Box className= ""
                         sx={{
                         display: 'flex',
                         justifyContent: "space-between",
@@ -205,53 +209,193 @@ const InstancesPage = () => {
                                 </ContextMenuTrigger>
                                 <ContextMenuContent className="w-48">
                                     <ContextMenuLabel>{row.original.userGivenName}</ContextMenuLabel>
-                                    <ContextMenuSeparator />
-                                    <ContextMenuItem
-                                    inset
-                                    onClick={()=>{
-                                        const newPromise = backupDB(row.original.dbId)
-                                            .then((resp) => {
-                                            console.log(resp)
-                                            return resp; 
-                                            });
-                                        addPromise(newPromise);
-                                        
-                                    }}
-                                    >
-                                    Backup
-                                    </ContextMenuItem>
-                                    <ContextMenuItem 
-                                    inset
-                                    onClick={()=>{
-                                        navigate("/dashboard/instances/"+row.original.dbId+"/restore")
-                                        
-                                    }}
-                                    >
-                                    Restore
-                                    </ContextMenuItem>
-                                    <ContextMenuItem 
-                                    inset
-                                    onSelect={() => {
-                                            setCloneDialogContext({ sourceId: row.original.dbId });
-                                        }}
-                                    >
-                                    Clone
-                                    </ContextMenuItem>
-                                     
-                                    <ContextMenuItem 
-                                    inset
-                                    onClick={()=>{
-                                        const newPromise = deleteDB(row.original.dbId)
-                                            .then((resp) => {
-                                            console.log(resp)
-                                            return resp; 
-                                            });
-                                        addPromise(newPromise);
-                                        
-                                    }}
-                                    >
-                                    Delete
-                                    </ContextMenuItem>
+                                    {row.original.permissionLevel!="VIEWER" && (
+                                        <>
+                                        <ContextMenuSeparator />
+                                            <ContextMenuItem
+                                            inset
+                                            onClick={()=>{
+                                                const newPromise = backupDB(row.original.dbId)
+                                                    .then((resp) => {
+                                                    console.log(resp)
+                                                    return resp; 
+                                                    });
+                                                addPromise(newPromise);
+                                                
+                                            }}
+                                            >
+                                            Backup
+                                            </ContextMenuItem>
+
+                                            <ContextMenuSub>
+                                                <ContextMenuSubTrigger inset>Autobackup</ContextMenuSubTrigger>
+                                                <ContextMenuSubContent className="w-44">
+                                                    <ContextMenuCheckboxItem
+                                                    onClick={()=>{
+                                                        let toAdd = !row.original.autoBackupSchedules?.includes("HOURLY")
+                                                        setInstances(prevData => {
+                                                            return prevData.map(item => {
+                                                                if (item.dbId === row.original.dbId ) {
+                                                                    // Type assertion to satisfy TypeScript
+                                                                    const newSchedules = (toAdd
+                                                                    ? [...(item.autoBackupSchedules ?? []), "HOURLY"]
+                                                                    : item.autoBackupSchedules?.filter(s => s !== "HOURLY")) as (
+                                                                    | "HOURLY"
+                                                                    | "DAILY"
+                                                                    | "WEEKLY"
+                                                                    | "MONTHLY"
+                                                                    )[];
+
+                                                                    return {
+                                                                    ...item,
+                                                                    autoBackupSchedules: newSchedules,
+                                                                    };
+                                                                }
+                                                                return item;
+                                                            });
+                                                        });
+                                                        setAutoBackup(row.original.dbId,"HOURLY",toAdd)
+                                                            .then((resp) => {
+                                                                console.log(resp)
+                                                            });
+                                                    }}
+                                                     checked={row.original.autoBackupSchedules?.includes("HOURLY")}>
+                                                        Hourly
+                                                    </ContextMenuCheckboxItem>
+                                                    <ContextMenuCheckboxItem 
+                                                    onClick={()=>{
+                                                        let toAdd = !row.original.autoBackupSchedules?.includes("DAILY")
+                                                        setInstances(prevData => {
+                                                            return prevData.map(item => {
+                                                                if (item.dbId === row.original.dbId) {
+                                                                    // Type assertion to satisfy TypeScript
+                                                                    const newSchedules = (toAdd
+                                                                    ? [...(item.autoBackupSchedules ?? []), "DAILY"]
+                                                                    : item.autoBackupSchedules?.filter(s => s !== "DAILY")) as (
+                                                                    | "HOURLY"
+                                                                    | "DAILY"
+                                                                    | "WEEKLY"
+                                                                    | "MONTHLY"
+                                                                    )[];
+
+                                                                    return {
+                                                                    ...item,
+                                                                    autoBackupSchedules: newSchedules,
+                                                                    };
+                                                                }
+                                                                return item;
+                                                            });
+                                                        });
+                                                        setAutoBackup(row.original.dbId,"DAILY",toAdd)
+                                                            .then((resp) => {
+                                                                console.log(resp)
+                                                            });
+                                                    }}
+                                                    checked={row.original.autoBackupSchedules?.includes("DAILY")}>
+                                                        Daily
+                                                    </ContextMenuCheckboxItem>
+                                                    <ContextMenuCheckboxItem 
+                                                    onClick={()=>{
+                                                        let toAdd = !row.original?.autoBackupSchedules?.includes("WEEKLY")
+                                                        setInstances(prevData => {
+                                                            return prevData.map(item => {
+                                                                if (item.dbId === row.original.dbId) {
+                                                                    // Type assertion to satisfy TypeScript
+                                                                    const newSchedules = (toAdd
+                                                                    ? [...(item.autoBackupSchedules ?? []), "WEEKLY"]
+                                                                    : item.autoBackupSchedules?.filter(s => s !== "WEEKLY")) as (
+                                                                    | "HOURLY"
+                                                                    | "DAILY"
+                                                                    | "WEEKLY"
+                                                                    | "MONTHLY"
+                                                                    )[];
+
+                                                                    return {
+                                                                    ...item,
+                                                                    autoBackupSchedules: newSchedules,
+                                                                    };
+                                                                }
+                                                                return item;
+                                                            });
+                                                        });
+                                                        setAutoBackup(row.original.dbId,"WEEKLY",toAdd)
+                                                            .then((resp) => {
+                                                                console.log(resp)
+                                                            });
+                                                    }}
+                                                    checked={row.original.autoBackupSchedules?.includes("WEEKLY")}>
+                                                        Weekly
+                                                    </ContextMenuCheckboxItem>
+                                                    <ContextMenuCheckboxItem 
+                                                    onClick={()=>{
+                                                        let toAdd = !row.original.autoBackupSchedules?.includes("MONTHLY")
+                                                        setInstances(prevData => {
+                                                            return prevData.map(item => {
+                                                                if (item.dbId === row.original.dbId) {
+                                                                    // Type assertion to satisfy TypeScript
+                                                                    const newSchedules = (toAdd
+                                                                    ? [...(item.autoBackupSchedules ?? []), "MONTHLY"]
+                                                                    : item.autoBackupSchedules?.filter(s => s !== "MONTHLY")) as (
+                                                                    | "HOURLY"
+                                                                    | "DAILY"
+                                                                    | "WEEKLY"
+                                                                    | "MONTHLY"
+                                                                    )[];
+
+                                                                    return {
+                                                                    ...item,
+                                                                    autoBackupSchedules: newSchedules,
+                                                                    };
+                                                                }
+                                                                return item;
+                                                            });
+                                                        });
+                                                        setAutoBackup(row.original.dbId,"MONTHLY",toAdd)
+                                                            .then((resp) => {
+                                                                console.log(resp)
+                                                            });
+                                                    }}
+                                                    checked={row.original.autoBackupSchedules?.includes("MONTHLY")}>
+                                                        Monthly
+                                                    </ContextMenuCheckboxItem>
+                                                </ContextMenuSubContent>
+                                            </ContextMenuSub>
+                                            <ContextMenuItem 
+                                            inset
+                                            onClick={()=>{
+                                                navigate("/dashboard/instances/"+row.original.dbId+"/restore")
+                                                
+                                            }}
+                                            >
+                                            Restore
+                                            </ContextMenuItem>
+                                            <ContextMenuItem 
+                                            inset
+                                            onSelect={() => {
+                                                    setCloneDialogContext({ sourceId: row.original.dbId });
+                                                }}
+                                            >
+                                            Clone
+                                            </ContextMenuItem>
+                                            
+                                            <ContextMenuItem
+                                            variant="destructive" 
+                                            inset
+                                            onClick={()=>{
+                                                const newPromise = deleteDB(row.original.dbId)
+                                                    .then((resp) => {
+                                                    console.log(resp)
+                                                    return resp; 
+                                                    });
+                                                addPromise(newPromise);
+                                                
+                                            }}
+                                            >
+                                            Delete
+                                            </ContextMenuItem>
+                                        </>
+                                    )}
+                                    
                                 </ContextMenuContent>
                                 </ContextMenu>
                             ))}

@@ -10,6 +10,8 @@ export interface DatabaseInstanceResponse {
     dbUser: string;
     dbPassword: string;
     internalDbName: string;
+    permissionLevel?: "OWNER"|"ADMIN"|"VIEWER"|null
+    autoBackupSchedules?:("HOURLY"|"DAILY"|"WEEKLY"|"MONTHLY")[]
   }
 
   
@@ -66,6 +68,12 @@ export interface BackupRecord {
     userGivenName: string;
     filePath: string;
     createdAt: string;
+}
+
+export interface UserResponse {
+    userId: number;
+    username: string;
+    permissionLevel: "OWNER"|"ADMIN"|"VIEWER"|null
 }
 
 export interface QueryablePromise<T> extends Promise<T> {
