@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
-import { Outlet, useNavigate } from 'react-router-dom'; // useNavigate was imported but not used
+import { Outlet, useNavigate, useParams } from 'react-router-dom'; // useNavigate was imported but not used
 import { backupDB, deleteDB, getAllInstances } from '~/lib/instanceService';
 import { MakeQuerablePromise, type DatabaseInstanceResponse } from '~/types/dto';
 import {
@@ -37,6 +37,8 @@ const RolesPage = () => {
     
     const navigate = useNavigate();
     const {instances, setInstances, addPromise} = useDatabaseInstances()
+    const { dbId } = useParams<{ dbId: string }>();
+    const selectedDbId = useMemo(() => parseInt(dbId ?? "-1"), [dbId]);
 
     const columns = useMemo<MRT_ColumnDef<DatabaseInstanceResponse >[]>( //TS helps with the autocomplete while writing columns
     () => [
@@ -156,7 +158,7 @@ const RolesPage = () => {
                         <TableBody>
                             {table.getRowModel().rows.map((row, rowIndex) => (
                             
-                                    <TableRow onClick={()=>navigate("/dashboard/roles/"+row.original.dbId)} key={row.id} selected={row.getIsSelected()}>
+                                    <TableRow onClick={()=>navigate("/dashboard/roles/"+row.original.dbId)} key={row.id} selected={row.original.dbId === selectedDbId}>
                                         {row.getVisibleCells().map((cell, _columnIndex) => (
                                         <TableCell align="center" variant="body" key={cell.id}>
                                             

@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
-import { Outlet, useNavigate } from 'react-router-dom'; // useNavigate was imported but not used
+import { Outlet, useNavigate, useParams } from 'react-router-dom'; // useNavigate was imported but not used
 import { backupDB, deleteDB, getAllInstances, setAutoBackup } from '~/lib/instanceService';
 import { MakeQuerablePromise, type DatabaseInstanceResponse } from '~/types/dto';
 import {
@@ -54,6 +54,8 @@ const InstancesPage = () => {
     const navigate = useNavigate();
     const {instances, setInstances, addPromise} = useDatabaseInstances()
     const [cloneDialogContext, setCloneDialogContext] = useState<{ sourceId: number } | null>(null);
+    const { dbId } = useParams<{ dbId: string }>();
+    const selectedDbId = useMemo(() => parseInt(dbId ?? "-1"), [dbId]);
 
     const columns = useMemo<MRT_ColumnDef<DatabaseInstanceResponse >[]>( //TS helps with the autocomplete while writing columns
     () => [
@@ -194,7 +196,7 @@ const InstancesPage = () => {
                             
                             <ContextMenu>
                                 <ContextMenuTrigger onClick={()=>navigate("/dashboard/instances/"+row.original.dbId)} asChild className="">
-                                    <TableRow key={row.id} selected={row.getIsSelected()}>
+                                    <TableRow key={row.id} selected={row.original.dbId === selectedDbId}>
                                         {row.getVisibleCells().map((cell, _columnIndex) => (
                                         <TableCell align="center" variant="body" key={cell.id}>
                                             
