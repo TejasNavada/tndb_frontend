@@ -54,7 +54,7 @@ export const DatabaseInstanceProvider = ({ children }: DatabaseInstanceProviderP
         forceUpdate();
         });
 
-        setPromises(prevPromises => [...prevPromises, queryable]);
+        setPromises(prevPromises => [queryable, ...prevPromises ]);
     }, [forceUpdate]);
 
 

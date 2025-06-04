@@ -65,7 +65,7 @@ const InstanceRestorePage = () => {
                     </div>
                 </Card>
             </PopoverTrigger>
-            <PopoverContent className="w-100  border-none text-gray-300 rounded-sm">
+            <PopoverContent className="w-100  border-none text-gray-300 rounded-sm overflow-y-auto h-[400px]">
                 <div>
                     {db.backups.map((backup)=>(
                         <div>
